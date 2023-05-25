@@ -5,15 +5,11 @@
 
 import UIKit
 
-protocol StockDelegate: AnyObject {
-    func getCurrentStock() -> [Int]
-    func addStock(quantities: [Int])
-}
-
 final class ChangeStockViewController: UIViewController {
     private var initialStock: [Int] = []
     private var additionalStock = [Int](repeating: 0, count: Fruits.allCases.count)
-    weak var delegate: StockDelegate?
+    var getCurrentHandler: (() -> [Int])?
+    var addStockHandler: ((_ quantities:[Int]) -> Void)?
     
     @IBOutlet var stockChangeLabels: [UILabel]!
     
@@ -23,7 +19,7 @@ final class ChangeStockViewController: UIViewController {
     }
     
     private func initializeStockLabels() {
-        guard let currentStock = delegate?.getCurrentStock() else { return }
+        guard let currentStock = getCurrentHandler?() else { return }
         initialStock = currentStock
         for (index, label) in stockChangeLabels.enumerated() {
             label.text = "\(initialStock[index])"
@@ -31,7 +27,7 @@ final class ChangeStockViewController: UIViewController {
     }
     
     @IBAction private func hitDismissButton(_ sender: UIBarButtonItem) {
-        delegate?.addStock(quantities: additionalStock)
+        addStockHandler?(additionalStock)
         dismiss(animated: true)
     }
     

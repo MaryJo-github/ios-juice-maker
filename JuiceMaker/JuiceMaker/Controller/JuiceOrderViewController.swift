@@ -86,9 +86,21 @@ final class JuiceOrderViewController: UIViewController {
     private func presentChangeStockViewController() {
         guard let viewController = storyboard?
             .instantiateViewController(identifier: "ChangeStockViewController") as? ChangeStockViewController else { return }
-        viewController.delegate = self
+        viewController.getCurrentHandler = self.getCurrentStock
+        viewController.addStockHandler = self.addStock
         viewController.modalPresentationStyle = .fullScreen
         present(viewController, animated: true)
+    }
+    
+    private func getCurrentStock() -> [Int] {
+        return Fruits.allCases.map { fruits in
+            juiceMaker.fruitStore.bringQuantity(of: fruits) }
+    }
+
+    private func addStock(_ quantities: [Int]) {
+        for (index, fruit) in Fruits.allCases.enumerated() {
+            juiceMaker.fruitStore.addStock(fruit: fruit, quantity: quantities[index])
+        }
     }
     
     @IBAction private func hitJuiceOrderButton(_ sender: UIButton) {
@@ -102,15 +114,3 @@ final class JuiceOrderViewController: UIViewController {
     }
 }
 
-extension JuiceOrderViewController: StockDelegate {
-    func getCurrentStock() -> [Int] {
-        return Fruits.allCases.map { fruits in
-            juiceMaker.fruitStore.bringQuantity(of: fruits) }
-    }
-    
-    func addStock(quantities: [Int]) {
-        for (index, fruit) in Fruits.allCases.enumerated() {
-            juiceMaker.fruitStore.addStock(fruit: fruit, quantity: quantities[index])
-        }
-    }
-}
