@@ -7,7 +7,6 @@ import UIKit
 
 protocol StockDelegate: AnyObject {
     func getCurrentStock() -> [Int]
-    func addStock(quantities: [Int])
 }
 
 final class ChangeStockViewController: UIViewController {
@@ -31,7 +30,9 @@ final class ChangeStockViewController: UIViewController {
     }
     
     @IBAction private func hitDismissButton(_ sender: UIBarButtonItem) {
-        delegate?.addStock(quantities: additionalStock)
+        NotificationCenter.default.post(name: Notification.Name("changeStock"),
+                                        object: nil,
+                                        userInfo: ["additionalStock": additionalStock])
         dismiss(animated: true)
     }
     

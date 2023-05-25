@@ -16,6 +16,13 @@ final class JuiceOrderViewController: UIViewController {
         updateStockLabel()
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        NotificationCenter.default.addObserver(self, selector: #selector(addStock(_:)),
+                                               name: Notification.Name("changeStock"),
+                                               object: nil)
+    }
+    
     private func updateStockLabel() {
         for (index, label) in stockLabels.enumerated() {
             label.text = "\(juiceMaker.fruitStore.bringQuantity(of: Fruits.allCases[index]))"
@@ -91,6 +98,13 @@ final class JuiceOrderViewController: UIViewController {
         present(viewController, animated: true)
     }
     
+    @objc func addStock(_ notification: NSNotification) {
+        guard let notifi = notification.userInfo?["additionalStock"] as? [Int] else { return }
+        for (index, fruit) in Fruits.allCases.enumerated() {
+            juiceMaker.fruitStore.addStock(fruit: fruit, quantity: notifi[index])
+        }
+    }
+    
     @IBAction private func hitJuiceOrderButton(_ sender: UIButton) {
         guard let buttonTitle = sender.currentTitle,
                 let choosedJuice = searchJuice(by: buttonTitle) else { return }
@@ -106,11 +120,5 @@ extension JuiceOrderViewController: StockDelegate {
     func getCurrentStock() -> [Int] {
         return Fruits.allCases.map { fruits in
             juiceMaker.fruitStore.bringQuantity(of: fruits) }
-    }
-    
-    func addStock(quantities: [Int]) {
-        for (index, fruit) in Fruits.allCases.enumerated() {
-            juiceMaker.fruitStore.addStock(fruit: fruit, quantity: quantities[index])
-        }
     }
 }
