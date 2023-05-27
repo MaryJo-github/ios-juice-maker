@@ -29,7 +29,6 @@ struct JuiceMaker {
                 return .failure(JuiceMakerError.outOfStock(fruit: fruit.name))
             }
         }
-        
         return .success(())
     }
 

@@ -6,21 +6,30 @@
 
 import UIKit
 
+extension Notification.Name {
+    static let changeStock = Notification.Name("changeStock")
+}
+
 final class JuiceOrderViewController: UIViewController {
     private let juiceMaker = JuiceMaker()
     
     @IBOutlet var stockLabels: [UILabel]!
     
     override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(true)
+        super.viewWillAppear(animated)
         updateStockLabel()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        NotificationCenter.default.addObserver(self, selector: #selector(addStock(_:)),
-                                               name: Notification.Name("changeStock"),
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(addStock(_:)),
+                                               name: .changeStock,
                                                object: nil)
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .changeStock, object: nil)
     }
     
     private func updateStockLabel() {
@@ -99,9 +108,9 @@ final class JuiceOrderViewController: UIViewController {
     }
     
     @objc func addStock(_ notification: NSNotification) {
-        guard let notifi = notification.userInfo?["additionalStock"] as? [Int] else { return }
+        guard let additionalStock = notification.userInfo?["additionalStock"] as? [Int] else { return }
         for (index, fruit) in Fruits.allCases.enumerated() {
-            juiceMaker.fruitStore.addStock(fruit: fruit, quantity: notifi[index])
+            juiceMaker.fruitStore.addStock(fruit: fruit, quantity: additionalStock[index])
         }
     }
     
